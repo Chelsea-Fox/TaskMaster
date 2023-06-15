@@ -1,3 +1,8 @@
+"""
+Main file for TaskMaster
+"""
+
+
 def get_task(task):
     """
     Accepts a task and prints to console.
