@@ -1,9 +1,14 @@
+"""
+Main test file for TaskMaster
+"""
 from unittest import TestCase
-from src.main import get_task
+from ..src.main import get_task
 
 
+# pylint: disable=missing-class-docstring
 class Test(TestCase):
     def test_input_is_passed_and_returned(self):
+        """ Simple input and output """
         expected_value = "Clean"
         actual_value = get_task("Clean")
 
