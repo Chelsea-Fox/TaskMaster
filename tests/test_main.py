@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from unittest import TestCase
 import pytest
 from schema import SchemaMissingKeyError
-from main import validate_task, save_task
+from main import validate_task, save_task, load_task
 import settings
 
 
@@ -52,18 +52,29 @@ class TestValidateTask(TestCase):
             validate_task(invalid_status_task)
 
 
-class TestSaveTask(TestCase):
+class TestTaskStorage(TestCase):
     """Test class for save task"""
+
+    valid_task = {
+        "description": "Shopping",
+        "eta": datetime.now() + timedelta(days=3),
+        "status": "OPEN",
+    }
 
     def test_save_task(self):
         """Test saving task"""
-        valid_task = {
-            "description": "Shopping",
-            "eta": datetime.now() + timedelta(days=3),
-            "status": "OPEN",
-        }
-        save_task(valid_task)
+
+        save_task(self.valid_task)
 
         with open(settings.TASK_DATA_FILE, "rb") as file:
             task = pickle.load(file)
-        self.assertEqual(valid_task, task, "Tasks don't match")
+        self.assertEqual(self.valid_task, task, "Tasks don't match")
+
+    def test_load_task(self):
+        """Test loading task"""
+
+        save_task(self.valid_task)
+
+        task = load_task()
+
+        self.assertEqual(self.valid_task, task, "Tasks don't match")
