@@ -37,3 +37,14 @@ def save_task(task):
     """
     with open(settings.TASK_DATA_FILE, "wb") as file:
         pickle.dump(task, file)
+
+
+def load_task():
+    """
+    Loads tasks
+    :return: dict: task
+    """
+    with open(settings.TASK_DATA_FILE, "rb") as file:
+        task = pickle.load(file)
+
+    return task
