@@ -2,11 +2,13 @@
 Main file for TaskMaster
 """
 from datetime import datetime
-from schema import Schema
 from enum import Enum
+from schema import Schema
 
 
 class Status(Enum):
+    """Enum for Statuses"""
+
     OPEN = "OPEN"
     DONE = "DONE"
     CANCELLED = "CANCELLED"
@@ -18,9 +20,7 @@ def get_task(task):
     :param task: str: The task to be accepted.
     :return: Task being passed
     """
-    schema = Schema({'description': str,
-                     'eta': datetime,
-                     'status': str})
+    schema = Schema({"description": str, "eta": datetime, "status": str})
 
     Status(task["status"])
 
