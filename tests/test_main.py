@@ -1,15 +1,17 @@
 """
 Main test file for TaskMaster
 """
+import pickle
 from datetime import datetime, timedelta
 from unittest import TestCase
 import pytest
 from schema import SchemaMissingKeyError
-from main import get_task
+from main import validate_task, save_task
+import settings
 
 
 # pylint: disable=missing-class-docstring
-class Test(TestCase):
+class TestValidateTask(TestCase):
     clean_task = {
         "description": "Clean House",
         "eta": datetime.now() + timedelta(days=3),
@@ -19,13 +21,13 @@ class Test(TestCase):
     def test_input_is_passed_and_returned(self):
         """Simple input and output"""
         expected_value = self.clean_task
-        actual_value = get_task(self.clean_task)
+        actual_value = validate_task(self.clean_task)
 
         self.assertEqual(expected_value, actual_value, "Values are not matching")
 
     def test_valid_task_is_accepted(self):
         """Validation of task schema"""
-        return_value = get_task(self.clean_task)
+        return_value = validate_task(self.clean_task)
 
         assert return_value is not None
 
@@ -37,7 +39,7 @@ class Test(TestCase):
             "status": "OPEN",
         }
         with pytest.raises(SchemaMissingKeyError):
-            get_task(invalid_task)
+            validate_task(invalid_task)
 
     def test_invalid_status(self):
         """Invalid task status"""
@@ -47,4 +49,21 @@ class Test(TestCase):
             "status": "BLUE",
         }
         with pytest.raises(ValueError):
-            get_task(invalid_status_task)
+            validate_task(invalid_status_task)
+
+
+class TestSaveTask(TestCase):
+    """Test class for save task"""
+
+    def test_save_task(self):
+        """Test saving task"""
+        valid_task = {
+            "description": "Shopping",
+            "eta": datetime.now() + timedelta(days=3),
+            "status": "OPEN",
+        }
+        save_task(valid_task)
+
+        with open(settings.TASK_DATA_FILE, "rb") as file:
+            task = pickle.load(file)
+        self.assertEqual(valid_task, task, "Tasks don't match")
