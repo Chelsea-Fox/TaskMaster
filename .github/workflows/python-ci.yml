@@ -28,7 +28,7 @@ jobs:
 
     - name: Run unit tests
       run: |
-        pytest
+        pytest --cov-fail-under=90 --cov --cov-report=xml --cov-report=html
     - name: Run Pylint
       run: |
         pylint tests src
