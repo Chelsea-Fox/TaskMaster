@@ -16,14 +16,12 @@ class Status(Enum):
 
 def get_task(task):
     """
-    Accepts a task and prints to console.
+    Accepts and validates a task.
     :param task: str: The task to be accepted.
     :return: Task being passed
     """
     schema = Schema({"description": str, "eta": datetime, "status": str})
-
-    Status(task["status"])
-
     schema.validate(task)
+    Status(task["status"])
 
     return task
