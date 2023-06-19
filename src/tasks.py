@@ -1,7 +1,7 @@
 """
 tasks functionality
 """
-
+import copy
 import uuid
 from datetime import datetime
 from enum import Enum
@@ -80,8 +80,20 @@ class Tasks:
             print(f"error on post_task, invalid task status received -- {wrong_status}")
             raise InvalidTaskError(wrong_status) from wrong_status
 
-        uid = str(uuid.uuid4())
-        task["_id"] = uid
-        self._task_list[uid] = task
+        new_task = copy.deepcopy(task)
 
-        return self._task_list[uid]
+        uid = str(uuid.uuid4())
+        new_task["_id"] = uid
+        self._task_list[uid] = new_task
+
+        return new_task
+
+    def get_tasks(self, task_id=None):
+        """
+        Gets a list of tasks that match filter criteria, returning all if criteria is None.
+        :return: list: tasks
+        """
+        if task_id is None:
+            return list(self._task_list.values())
+
+        return [x for x in [self._task_list.get(task_id)] if x is not None]

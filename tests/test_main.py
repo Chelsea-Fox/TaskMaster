@@ -85,18 +85,17 @@ class TestTaskManagement(TestCase):
     """Tests for task management"""
 
     tasks = Tasks()
+    valid_task = {
+        "description": "Shopping",
+        "eta": datetime.now() + timedelta(days=3),
+        "status": "OPEN",
+    }
 
     def test_create_task(self):
         """Test creating task"""
+        expected_task = copy.deepcopy(self.valid_task)
 
-        valid_task = {
-            "description": "Shopping",
-            "eta": datetime.now() + timedelta(days=3),
-            "status": "OPEN",
-        }
-        expected_task = copy.deepcopy(valid_task)
-
-        return_task = self.tasks.post_task(valid_task)
+        return_task = self.tasks.post_task(self.valid_task)
         expected_task["_id"] = return_task["_id"]
 
         self.assertEqual(expected_task, return_task, "Tasks don't match")
@@ -124,3 +123,26 @@ class TestTaskManagement(TestCase):
 
         with pytest.raises(InvalidTaskError):
             self.tasks.post_task(invalid_task)
+
+    def test_get_all_tasks(self):
+        """Test GET all tasks from list of tasks"""
+
+        self.tasks.post_task(self.valid_task)
+        task_list = self.tasks.get_tasks()
+
+        self.assertGreaterEqual(len(task_list), 1, "No tasks returned")
+
+    def test_get_task_by_id(self):
+        """Test GET task by id"""
+        input_task = self.tasks.post_task(self.valid_task)
+        return_task = self.tasks.get_tasks(input_task["_id"])
+
+        self.assertEqual(
+            [input_task], return_task, "Returned task is not the same as input task"
+        )
+
+    def test_get_task_with_wrong_id_returns_empty_list(self):
+        """Test GET task with wrong id"""
+        return_task = self.tasks.get_tasks("BLAHHH")
+
+        self.assertListEqual(return_task, [], "Returned task is not empty list")
