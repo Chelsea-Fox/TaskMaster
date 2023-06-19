@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from unittest import TestCase
 import pytest
 from schema import SchemaMissingKeyError
-from tasks import validate_task, save_task, load_task, Tasks
+from tasks import validate_task, save_task, load_task, Tasks, InvalidTaskError
 import settings
 
 
@@ -84,6 +84,8 @@ class TestTaskStorage(TestCase):
 class TestTaskManagement(TestCase):
     """Tests for task management"""
 
+    tasks = Tasks()
+
     def test_create_task(self):
         """Test creating task"""
 
@@ -94,8 +96,19 @@ class TestTaskManagement(TestCase):
         }
         expected_task = copy.deepcopy(valid_task)
 
-        tasks = Tasks()
-        return_task = tasks.post_task(valid_task)
+        return_task = self.tasks.post_task(valid_task)
         expected_task["_id"] = return_task["_id"]
 
         self.assertEqual(expected_task, return_task, "Tasks don't match")
+
+    def test_post_task_with_invalid_task(self):
+        """Testing with invalid task."""
+
+        invalid_task = {
+            "descriptionnnnnnnnn": "Shopping",
+            "eta": datetime.now() + timedelta(days=5),
+            "status": "OPEN",
+        }
+
+        with pytest.raises(InvalidTaskError):
+            self.tasks.post_task(invalid_task)
