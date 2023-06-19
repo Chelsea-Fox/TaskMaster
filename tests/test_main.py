@@ -112,3 +112,15 @@ class TestTaskManagement(TestCase):
 
         with pytest.raises(InvalidTaskError):
             self.tasks.post_task(invalid_task)
+
+    def test_post_task_with_invalid_task_status(self):
+        """Testing with invalid task status."""
+
+        invalid_task = {
+            "description": "Shopping",
+            "eta": datetime.now() + timedelta(days=5),
+            "status": "DEFINATELYNOTASTATUS",
+        }
+
+        with pytest.raises(InvalidTaskError):
+            self.tasks.post_task(invalid_task)
