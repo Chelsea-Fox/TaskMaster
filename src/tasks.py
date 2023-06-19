@@ -1,11 +1,12 @@
 """
 tasks functionality
 """
+
 import uuid
 from datetime import datetime
 from enum import Enum
 import pickle
-from schema import Schema
+from schema import Schema, SchemaMissingKeyError
 import settings
 
 
@@ -52,6 +53,12 @@ def load_task():
 
 
 # pylint: disable=too-few-public-methods
+
+
+class InvalidTaskError(Exception):
+    """Exception for invalid task."""
+
+
 class Tasks:
     """Class for tasks management."""
 
@@ -64,7 +71,12 @@ class Tasks:
         :param task:
         :return: dict: task with '_id' assigned
         """
-        validate_task(task)
+        try:
+            validate_task(task)
+        except SchemaMissingKeyError as missing_key:
+            print(f"error on post_task, invalid task received -- {missing_key}")
+            raise InvalidTaskError(missing_key) from missing_key
+
         uid = str(uuid.uuid4())
         task["_id"] = uid
         self._task_list[uid] = task
