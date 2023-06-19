@@ -76,6 +76,9 @@ class Tasks:
         except SchemaMissingKeyError as missing_key:
             print(f"error on post_task, invalid task received -- {missing_key}")
             raise InvalidTaskError(missing_key) from missing_key
+        except ValueError as wrong_status:
+            print(f"error on post_task, invalid task status received -- {wrong_status}")
+            raise InvalidTaskError(wrong_status) from wrong_status
 
         uid = str(uuid.uuid4())
         task["_id"] = uid
