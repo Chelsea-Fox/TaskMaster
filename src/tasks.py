@@ -1,6 +1,7 @@
 """
-Main file for TaskMaster
+tasks functionality
 """
+import uuid
 from datetime import datetime
 from enum import Enum
 import pickle
@@ -48,3 +49,24 @@ def load_task():
         task = pickle.load(file)
 
     return task
+
+
+# pylint: disable=too-few-public-methods
+class Tasks:
+    """Class for tasks management."""
+
+    def __init__(self):
+        self._task_list = {}
+
+    def post_task(self, task):
+        """
+        Posts a given task to the task list
+        :param task:
+        :return: dict: task with '_id' assigned
+        """
+        validate_task(task)
+        uid = str(uuid.uuid4())
+        task["_id"] = uid
+        self._task_list[uid] = task
+
+        return self._task_list[uid]
