@@ -146,3 +146,13 @@ class TestTaskManagement(TestCase):
         return_task = self.tasks.get_tasks("BLAHHH")
 
         self.assertListEqual(return_task, [], "Returned task is not empty list")
+
+    def test_delete_task(self):
+        """Test for deleting task"""
+        input_task = self.tasks.post_task(self.valid_task)
+        task_id = input_task["_id"]
+
+        self.tasks.delete_task(task_id)
+
+        result_task = self.tasks.get_tasks(task_id)
+        self.assertListEqual(result_task, [], "Task ID has not been deleted")

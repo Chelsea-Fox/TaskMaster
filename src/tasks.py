@@ -97,3 +97,11 @@ class Tasks:
             return list(self._task_list.values())
 
         return [x for x in [self._task_list.get(task_id)] if x is not None]
+
+    def delete_task(self, task_id):
+        """
+        Deletes a task given its task_id
+        :param task_id: id given to delete a task
+        :return: None
+        """
+        self._task_list.pop(task_id, None)
