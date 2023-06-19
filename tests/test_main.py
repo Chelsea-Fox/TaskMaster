@@ -1,12 +1,13 @@
 """
 Main test file for TaskMaster
 """
+import copy
 import pickle
 from datetime import datetime, timedelta
 from unittest import TestCase
 import pytest
 from schema import SchemaMissingKeyError
-from main import validate_task, save_task, load_task
+from tasks import validate_task, save_task, load_task, Tasks
 import settings
 
 
@@ -78,3 +79,23 @@ class TestTaskStorage(TestCase):
         task = load_task()
 
         self.assertEqual(self.valid_task, task, "Tasks don't match")
+
+
+class TestTaskManagement(TestCase):
+    """Tests for task management"""
+
+    def test_create_task(self):
+        """Test creating task"""
+
+        valid_task = {
+            "description": "Shopping",
+            "eta": datetime.now() + timedelta(days=3),
+            "status": "OPEN",
+        }
+        expected_task = copy.deepcopy(valid_task)
+
+        tasks = Tasks()
+        return_task = tasks.post_task(valid_task)
+        expected_task["_id"] = return_task["_id"]
+
+        self.assertEqual(expected_task, return_task, "Tasks don't match")
