@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from enum import Enum
 import pickle
-from schema import Schema, SchemaMissingKeyError
+from schema import Schema, SchemaMissingKeyError, Optional, Use
 import settings
 
 
@@ -24,7 +24,9 @@ def validate_task(task):
     :param task: dict: The task to be accepted.
     :return: Task being passed
     """
-    schema = Schema({"description": str, "eta": datetime, "status": str})
+    schema = Schema(
+        {"description": str, "eta": datetime, "status": str, Optional("_id"): Use(str)}
+    )
     schema.validate(task)
     Status(task["status"])
 
@@ -105,3 +107,21 @@ class Tasks:
         :return: None
         """
         self._task_list.pop(task_id, None)
+
+    def put_task(self, task_id, updated_task):
+        """
+        Updates a task given its task_id and updated_task
+        :param task_id: id given to update a task
+        :param updated_task: dict: updated task
+        :return: None
+        """
+        try:
+            validate_task(updated_task)
+        except SchemaMissingKeyError as missing_key:
+            print(f"error on post_task, invalid task received -- {missing_key}")
+            raise InvalidTaskError(missing_key) from missing_key
+        except ValueError as wrong_status:
+            print(f"error on post_task, invalid task status received -- {wrong_status}")
+            raise InvalidTaskError(wrong_status) from wrong_status
+
+        self._task_list[task_id] = updated_task
