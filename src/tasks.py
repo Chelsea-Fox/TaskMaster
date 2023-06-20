@@ -6,8 +6,31 @@ import uuid
 from datetime import datetime
 from enum import Enum
 import pickle
+from functools import wraps
+
 from schema import Schema, SchemaMissingKeyError, Optional, Use
 import settings
+
+
+def deep_copy_params_method(func):
+    """Decorator to copy input and output parameters"""
+
+    @wraps(func)
+    def decorated_method(self, *args, **kwargs):
+        # Create deep copies of input parameters
+        copied_args = copy.deepcopy(args)
+        copied_kwargs = copy.deepcopy(kwargs)
+
+        # Invoke the original function with copied parameters
+        result = func(self, *copied_args, **copied_kwargs)
+
+        # Create a deep copy of the result
+        copied_result = copy.deepcopy(result)
+
+        # Return the deep copied result
+        return copied_result
+
+    return decorated_method
 
 
 class Status(Enum):
@@ -67,6 +90,7 @@ class Tasks:
     def __init__(self):
         self._task_list = {}
 
+    @deep_copy_params_method
     def post_task(self, task):
         """
         Posts a given task to the task list
@@ -82,14 +106,13 @@ class Tasks:
             print(f"error on post_task, invalid task status received -- {wrong_status}")
             raise InvalidTaskError(wrong_status) from wrong_status
 
-        new_task = copy.deepcopy(task)
-
         uid = str(uuid.uuid4())
-        new_task["_id"] = uid
-        self._task_list[uid] = new_task
+        task["_id"] = uid
+        self._task_list[uid] = task
 
-        return new_task
+        return task
 
+    @deep_copy_params_method
     def get_tasks(self, task_id=None):
         """
         Gets a list of tasks that match filter criteria, returning all if criteria is None.
@@ -108,6 +131,7 @@ class Tasks:
         """
         self._task_list.pop(task_id, None)
 
+    @deep_copy_params_method
     def put_task(self, task_id, updated_task):
         """
         Updates a task given its task_id and updated_task

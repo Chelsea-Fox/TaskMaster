@@ -162,10 +162,9 @@ class TestTaskManagement(TestCase):
         input_task = self.tasks.post_task(self.valid_task)
         task_id = input_task["_id"]
 
-        updated_task = copy.deepcopy(input_task)
-        updated_task["description"] = "Cleaning Car"
+        input_task["description"] = "Cleaning Car"
 
-        self.tasks.put_task(task_id, updated_task)
+        self.tasks.put_task(task_id, input_task)
 
         result_task = self.tasks.get_tasks(task_id)[0]
-        self.assertEqual(result_task, updated_task, "Tasks don't match")
+        self.assertEqual(result_task, input_task, "Tasks don't match")
