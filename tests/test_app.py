@@ -70,10 +70,34 @@ class RouteTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 204)
 
+    def put_task_and_check_result(self):
+        """Step to update task"""
+        self.valid_task["description"] = "Watching TV"
+        response = self.app.put(f"/task/{self.valid_task['_id']}", json=self.valid_task)
+        data = response.get_json()
+
+        self.assertEqual(response.status_code, 200)
+        assert "_id" in data
+        assert data["description"] == "Watching TV"
+        assert data["eta"] == "2023-06-20T14:00:00"
+        assert data["status"] == "OPEN"
+        assert response.headers.get("content-type") == "application/json"
+
+        response = self.app.get(f"/task/{self.valid_task['_id']}")
+        data = response.get_json()[0]
+
+        self.assertEqual(response.status_code, 200)
+        assert data["_id"] == self.valid_task["_id"]
+        assert data["description"] == "Watching TV"
+        assert data["eta"] == "2023-06-20T14:00:00"
+        assert data["status"] == "OPEN"
+        assert response.headers.get("content-type") == "application/json"
+
     def test_get_and_post(self):
         """Test script for Flask API"""
         self.get_tasks_with_empty_data()
         self.post_task_successful_and_get_task_by_id()
         self.get_tasks_should_return_data()
+        self.put_task_and_check_result()
         self.delete_task()
         self.get_tasks_with_empty_data()

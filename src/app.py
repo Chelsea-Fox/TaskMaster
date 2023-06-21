@@ -74,6 +74,21 @@ def delete_task(task_id):
     return "", 204
 
 
+@app.route("/task/<task_id>", methods=["PUT"])
+@format_response
+def put_task(task_id):
+    "Route for PUT task"
+
+    task = request.get_json()
+    task["eta"] = datetime.strptime(task["eta"], "%Y-%m-%dT%H:%M:%S")
+
+    updated_task = tasks.put_task(task_id, task)
+    print(updated_task)
+    convert_datetime_to_iso(updated_task)
+
+    return updated_task
+
+
 def convert_datetime_to_iso(response):
     """datetime to ISO string conversion"""
     response["eta"] = response["eta"].isoformat()

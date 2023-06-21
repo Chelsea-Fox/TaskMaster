@@ -149,3 +149,5 @@ class Tasks:
             raise InvalidTaskError(wrong_status) from wrong_status
 
         self._task_list[task_id] = updated_task
+
+        return updated_task
