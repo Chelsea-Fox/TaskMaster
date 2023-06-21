@@ -66,6 +66,14 @@ def get_task(task_id):
     return response
 
 
+@app.route("/task/<task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    """Route for DELETE task"""
+    tasks.delete_task(task_id)
+
+    return "", 204
+
+
 def convert_datetime_to_iso(response):
     """datetime to ISO string conversion"""
     response["eta"] = response["eta"].isoformat()
