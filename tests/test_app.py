@@ -64,8 +64,16 @@ class RouteTests(unittest.TestCase):
         assert data["status"] == "OPEN"
         assert response.headers.get("content-type") == "application/json"
 
+    def delete_task(self):
+        """Step to delete task"""
+        response = self.app.delete(f"/task/{self.valid_task['_id']}")
+
+        self.assertEqual(response.status_code, 204)
+
     def test_get_and_post(self):
         """Test script for Flask API"""
         self.get_tasks_with_empty_data()
         self.post_task_successful_and_get_task_by_id()
         self.get_tasks_should_return_data()
+        self.delete_task()
+        self.get_tasks_with_empty_data()
