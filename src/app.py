@@ -1,13 +1,17 @@
 """Flask app for task_master"""
 import json
+import logging
 from datetime import datetime
 from functools import wraps
 
-from flask import Flask, request, make_response
-from tasks import Tasks
+from flask import Flask, request, make_response, Response
+from tasks import Tasks, InvalidTaskError, SchemaMissingKeyError
 
 app = Flask(__name__)
 tasks = Tasks()
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 def format_response(func):
@@ -16,7 +20,14 @@ def format_response(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
         # Invoke the original route function
-        response = func(*args, **kwargs)
+        try:
+            response = func(*args, **kwargs)
+        except (InvalidTaskError, SchemaMissingKeyError) as invalid_data:
+            logging.info(invalid_data)
+            return Response(str(invalid_data), status=400)
+        except Exception as server_error:  # pylint: disable=broad-exception-caught
+            logging.error(server_error)
+            return Response("Internal Server Error", status=500)
 
         # Convert the response to JSON
         json_response = json.dumps(response)
@@ -24,6 +35,8 @@ def format_response(func):
         # Create a Flask response with JSON content type
         flask_response = make_response(json_response)
         flask_response.headers["Content-Type"] = "application/json"
+
+        logging.debug("Response = %s", json_response)
 
         return flask_response
 
@@ -46,6 +59,9 @@ def tasks_get():
 def tasks_post():
     """Route for POST /task"""
     task = request.get_json()
+
+    logging.debug("Request body for POST task = %s", task)
+
     task["eta"] = datetime.strptime(task["eta"], "%Y-%m-%dT%H:%M:%S")
 
     saved_task = tasks.post_task(task)
@@ -80,10 +96,12 @@ def put_task(task_id):
     """Route for PUT task"""
 
     task = request.get_json()
+
+    logging.debug("Request body for PUT task = %s", task)
+
     task["eta"] = datetime.strptime(task["eta"], "%Y-%m-%dT%H:%M:%S")
 
     updated_task = tasks.put_task(task_id, task)
-    print(updated_task)
     convert_datetime_to_iso(updated_task)
 
     return updated_task
