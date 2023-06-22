@@ -164,6 +164,17 @@ class TestTaskManagement(TestCase):
         # pylint: disable=protected-access
         self.assertEqual(self.tasks._task_list, task_list, "Tasks don't match")
 
+    def test_complete_task(self):
+        """Test for complete task"""
+
+        return_task = self.tasks.post_task(self.valid_task)
+        task_id = return_task["_id"]
+        self.tasks.complete_task(task_id)
+
+        updated_task = self.tasks.get_tasks(task_id)[0]
+
+        assert updated_task["status"] == "DONE"
+
     @classmethod
     def teardown_class(cls):
         """Teardown for tests"""

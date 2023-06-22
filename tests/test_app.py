@@ -93,11 +93,28 @@ class RouteTests(unittest.TestCase):
         assert data["status"] == "OPEN"
         assert response.headers.get("content-type") == "application/json"
 
+    def complete_task_and_get_result(self):
+        """Test step for complete task"""
+        response = self.app.patch(f"/task/{self.valid_task['_id']}/complete")
+        data = response.get_json()
+
+        assert data["status"] == "DONE"
+
+        get_response = self.app.get(f"/task/{self.valid_task['_id']}")
+        data = response.get_json()
+
+        assert data["_id"] == self.valid_task["_id"]
+        assert data["description"] == "Watching TV"
+        assert data["eta"] == "2023-06-20T14:00:00"
+        assert data["status"] == "DONE"
+        assert get_response.headers.get("content-type") == "application/json"
+
     def test_get_and_post(self):
         """Test script for Flask API"""
         self.get_tasks_with_empty_data()
         self.post_task_successful_and_get_task_by_id()
         self.get_tasks_should_return_data()
         self.put_task_and_check_result()
+        self.complete_task_and_get_result()
         self.delete_task()
         self.get_tasks_with_empty_data()

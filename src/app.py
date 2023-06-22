@@ -77,7 +77,7 @@ def delete_task(task_id):
 @app.route("/task/<task_id>", methods=["PUT"])
 @format_response
 def put_task(task_id):
-    "Route for PUT task"
+    """Route for PUT task"""
 
     task = request.get_json()
     task["eta"] = datetime.strptime(task["eta"], "%Y-%m-%dT%H:%M:%S")
@@ -87,6 +87,17 @@ def put_task(task_id):
     convert_datetime_to_iso(updated_task)
 
     return updated_task
+
+
+@app.route("/task/<task_id>/complete", methods=["PATCH"])
+@format_response
+def complete_task(task_id):
+    """Route for complete task"""
+
+    task = tasks.complete_task(task_id)
+    convert_datetime_to_iso(task)
+
+    return task
 
 
 def convert_datetime_to_iso(response):
