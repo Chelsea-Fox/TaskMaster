@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from unittest import TestCase
 import pytest
 from schema import SchemaMissingKeyError
-from tasks import validate_task, save_task, load_task, Tasks, InvalidTaskError
+from tasks import validate_task, Tasks, InvalidTaskError
 import settings
 
 
@@ -61,24 +61,6 @@ class TestTaskStorage(TestCase):
         "eta": datetime.now() + timedelta(days=3),
         "status": "OPEN",
     }
-
-    def test_save_task(self):
-        """Test saving task"""
-
-        save_task(self.valid_task)
-
-        with open(settings.TASK_DATA_FILE, "rb") as file:
-            task = pickle.load(file)
-        self.assertEqual(self.valid_task, task, "Tasks don't match")
-
-    def test_load_task(self):
-        """Test loading task"""
-
-        save_task(self.valid_task)
-
-        task = load_task()
-
-        self.assertEqual(self.valid_task, task, "Tasks don't match")
 
 
 class TestTaskManagement(TestCase):
@@ -168,3 +150,33 @@ class TestTaskManagement(TestCase):
 
         result_task = self.tasks.get_tasks(task_id)[0]
         self.assertEqual(result_task, input_task, "Tasks don't match")
+
+    def test_save_tasks(self):
+        """Test saving tasks"""
+
+        self.tasks.save_tasks()
+
+        with open(settings.TASK_DATA_FILE, "rb") as file:
+            task_list = pickle.load(file)
+        # pylint: disable=protected-access
+        self.assertEqual(self.tasks._task_list, task_list, "Tasks don't match")
+
+    def test_load_tasks(self):
+        """Test loading tasks"""
+
+        self.tasks.save_tasks()
+
+        with open(settings.TASK_DATA_FILE, "rb") as file:
+            task_list = pickle.load(file)
+
+        self.tasks.load_tasks()
+
+        # pylint: disable=protected-access
+        self.assertEqual(self.tasks._task_list, task_list, "Tasks don't match")
+
+    @classmethod
+    def teardown_class(cls):
+        """Teardown for tests"""
+        # pylint: disable=protected-access
+        cls.tasks._task_list = {}
+        cls.tasks.save_tasks()
