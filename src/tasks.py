@@ -135,6 +135,18 @@ class Tasks:
 
         return updated_task
 
+    @deep_copy_params_method
+    def complete_task(self, task_id):
+        """
+        Updates task status to DONE given task id
+        :param task_id: id given to update a task
+        :return: dict: updated task
+        """
+        self._task_list[task_id]["status"] = "DONE"
+        self.save_tasks()
+
+        return self._task_list[task_id]
+
     def save_tasks(self):
         """
         Saves tasks
