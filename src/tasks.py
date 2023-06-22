@@ -56,30 +56,7 @@ def validate_task(task):
     return task
 
 
-def save_task(task):
-    """
-    Saves tasks
-    :param task: dict: The task to be saved
-    :return: None
-    """
-    with open(settings.TASK_DATA_FILE, "wb") as file:
-        pickle.dump(task, file)
-
-
-def load_task():
-    """
-    Loads tasks
-    :return: dict: task
-    """
-    with open(settings.TASK_DATA_FILE, "rb") as file:
-        task = pickle.load(file)
-
-    return task
-
-
 # pylint: disable=too-few-public-methods
-
-
 class InvalidTaskError(Exception):
     """Exception for invalid task."""
 
@@ -89,6 +66,7 @@ class Tasks:
 
     def __init__(self):
         self._task_list = {}
+        self.load_tasks()
 
     @deep_copy_params_method
     def post_task(self, task):
@@ -110,6 +88,8 @@ class Tasks:
         task["_id"] = uid
         self._task_list[uid] = task
 
+        self.save_tasks()
+
         return task
 
     @deep_copy_params_method
@@ -130,6 +110,7 @@ class Tasks:
         :return: None
         """
         self._task_list.pop(task_id, None)
+        self.save_tasks()
 
     @deep_copy_params_method
     def put_task(self, task_id, updated_task):
@@ -150,4 +131,30 @@ class Tasks:
 
         self._task_list[task_id] = updated_task
 
+        self.save_tasks()
+
         return updated_task
+
+    def save_tasks(self):
+        """
+        Saves tasks
+        :return: None
+        """
+        with open(settings.TASK_DATA_FILE, "wb") as file:
+            pickle.dump(self._task_list, file)
+
+    def load_tasks(self):
+        """
+        Loads tasks
+        :return: None
+        """
+
+        tasks = {}
+        try:
+            with open(settings.TASK_DATA_FILE, "rb") as file:
+                tasks = pickle.load(file)
+        except FileNotFoundError:
+            with open(settings.TASK_DATA_FILE, "wb") as file:
+                pickle.dump(tasks, file)
+
+        self._task_list = tasks
