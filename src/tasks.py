@@ -2,14 +2,19 @@
 tasks functionality
 """
 import copy
+import logging
 import uuid
 from datetime import datetime
 from enum import Enum
 import pickle
 from functools import wraps
 
-from schema import Schema, SchemaMissingKeyError, Optional, Use
+from schema import Schema, SchemaMissingKeyError, SchemaWrongKeyError, Optional, Use
 import settings
+
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 def deep_copy_params_method(func):
@@ -77,11 +82,15 @@ class Tasks:
         """
         try:
             validate_task(task)
-        except SchemaMissingKeyError as missing_key:
-            print(f"error on post_task, invalid task received -- {missing_key}")
-            raise InvalidTaskError(missing_key) from missing_key
+        except (SchemaMissingKeyError, SchemaWrongKeyError) as schema_key_error:
+            logging.info(
+                "error on post_task, invalid task received -- %s", schema_key_error
+            )
+            raise InvalidTaskError(schema_key_error) from schema_key_error
         except ValueError as wrong_status:
-            print(f"error on post_task, invalid task status received -- {wrong_status}")
+            logging.info(
+                "error on post_task, invalid task status received -- %s", wrong_status
+            )
             raise InvalidTaskError(wrong_status) from wrong_status
 
         uid = str(uuid.uuid4())
@@ -122,11 +131,15 @@ class Tasks:
         """
         try:
             validate_task(updated_task)
-        except SchemaMissingKeyError as missing_key:
-            print(f"error on post_task, invalid task received -- {missing_key}")
-            raise InvalidTaskError(missing_key) from missing_key
+        except (SchemaMissingKeyError, SchemaWrongKeyError) as schema_key_error:
+            logging.info(
+                "error on post_task, invalid task received -- %s", schema_key_error
+            )
+            raise InvalidTaskError(schema_key_error) from schema_key_error
         except ValueError as wrong_status:
-            print(f"error on post_task, invalid task status received -- {wrong_status}")
+            logging.info(
+                "error on post_task, invalid task status received -- %s", wrong_status
+            )
             raise InvalidTaskError(wrong_status) from wrong_status
 
         self._task_list[task_id] = updated_task
