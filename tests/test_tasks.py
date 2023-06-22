@@ -53,16 +53,6 @@ class TestValidateTask(TestCase):
             validate_task(invalid_status_task)
 
 
-class TestTaskStorage(TestCase):
-    """Test class for save task"""
-
-    valid_task = {
-        "description": "Shopping",
-        "eta": datetime.now() + timedelta(days=3),
-        "status": "OPEN",
-    }
-
-
 class TestTaskManagement(TestCase):
     """Tests for task management"""
 
