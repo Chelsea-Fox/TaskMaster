@@ -62,6 +62,24 @@ def tasks_get():
     return response
 
 
+@app.route("/tasks/due")
+@basic_auth.required
+@format_response
+def get_tasks_due():
+    """Route /tasks/due"""
+
+    due_date = None
+
+    if "duedate" in request.args:
+        due_date = datetime.strptime(request.args.get("duedate"), "%Y-%m-%dT%H:%M:%S")
+
+    response = tasks.get_due_tasks(due_date)
+    for task in response:
+        convert_datetime_to_iso(task)
+
+    return response
+
+
 @app.route("/task", methods=["POST"])
 @basic_auth.required
 @format_response

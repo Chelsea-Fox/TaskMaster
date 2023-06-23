@@ -112,6 +112,7 @@ class Tasks:
 
         return [x for x in [self._task_list.get(task_id)] if x is not None]
 
+    @deep_copy_params_method
     def get_due_tasks(self, due_date=None):
         """
         Gets a list of tasks that are due to be completed.
