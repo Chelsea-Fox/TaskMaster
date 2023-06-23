@@ -5,9 +5,16 @@ from datetime import datetime
 from functools import wraps
 
 from flask import Flask, request, make_response, Response
+from flask_basicauth import BasicAuth
 from tasks import Tasks, InvalidTaskError, SchemaMissingKeyError
 
 app = Flask(__name__)
+
+app.config["BASIC_AUTH_USERNAME"] = "task_master"
+app.config["BASIC_AUTH_PASSWORD"] = "MasterOfTasks"
+
+basic_auth = BasicAuth(app)
+
 tasks = Tasks()
 
 # Configure logging
@@ -44,6 +51,7 @@ def format_response(func):
 
 
 @app.route("/tasks")
+@basic_auth.required
 @format_response
 def tasks_get():
     """Route /tasks"""
@@ -55,6 +63,7 @@ def tasks_get():
 
 
 @app.route("/task", methods=["POST"])
+@basic_auth.required
 @format_response
 def tasks_post():
     """Route for POST /task"""
@@ -72,6 +81,7 @@ def tasks_post():
 
 
 @app.route("/task/<task_id>")
+@basic_auth.required
 @format_response
 def get_task(task_id):
     """Route for GET /task>"""
@@ -83,6 +93,7 @@ def get_task(task_id):
 
 
 @app.route("/task/<task_id>", methods=["DELETE"])
+@basic_auth.required
 def delete_task(task_id):
     """Route for DELETE task"""
     tasks.delete_task(task_id)
@@ -91,6 +102,7 @@ def delete_task(task_id):
 
 
 @app.route("/task/<task_id>", methods=["PUT"])
+@basic_auth.required
 @format_response
 def put_task(task_id):
     """Route for PUT task"""
@@ -108,6 +120,7 @@ def put_task(task_id):
 
 
 @app.route("/task/<task_id>/complete", methods=["PATCH"])
+@basic_auth.required
 @format_response
 def complete_task(task_id):
     """Route for complete task"""

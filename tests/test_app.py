@@ -13,6 +13,8 @@ class RouteTests(unittest.TestCase):
         "status": "OPEN",
     }
 
+    basic_auth = {"Authorization": "Basic dGFza19tYXN0ZXI6TWFzdGVyT2ZUYXNrcw=="}
+
     def setUp(self):
         """Setup of application"""
         app.testing = True
@@ -20,7 +22,7 @@ class RouteTests(unittest.TestCase):
 
     def get_tasks_with_empty_data(self):
         """testing get returns no data"""
-        response = self.app.get("/tasks")
+        response = self.app.get("/tasks", headers=self.basic_auth)
         data = response.get_json()
 
         self.assertEqual(response.status_code, 200)
@@ -28,7 +30,7 @@ class RouteTests(unittest.TestCase):
 
     def post_task_successful_and_get_task_by_id(self):
         """Test post route and get task by id"""
-        response = self.app.post("/task", json=self.valid_task)
+        response = self.app.post("/task", json=self.valid_task, headers=self.basic_auth)
         data = response.get_json()
 
         self.assertEqual(response.status_code, 200)
@@ -40,7 +42,9 @@ class RouteTests(unittest.TestCase):
 
         self.valid_task["_id"] = data["_id"]
 
-        response = self.app.get(f"/task/{self.valid_task['_id']}")
+        response = self.app.get(
+            f"/task/{self.valid_task['_id']}", headers=self.basic_auth
+        )
         data = response.get_json()[0]
 
         self.assertEqual(response.status_code, 200)
@@ -52,7 +56,7 @@ class RouteTests(unittest.TestCase):
 
     def get_tasks_should_return_data(self):
         """Test get tasks should return data"""
-        response = self.app.get("/tasks")
+        response = self.app.get("/tasks", headers=self.basic_auth)
         data = response.get_json()
 
         self.assertEqual(response.status_code, 200)
@@ -66,14 +70,20 @@ class RouteTests(unittest.TestCase):
 
     def delete_task(self):
         """Step to delete task"""
-        response = self.app.delete(f"/task/{self.valid_task['_id']}")
+        response = self.app.delete(
+            f"/task/{self.valid_task['_id']}", headers=self.basic_auth
+        )
 
         self.assertEqual(response.status_code, 204)
 
     def put_task_and_check_result(self):
         """Step to update task"""
         self.valid_task["description"] = "Watching TV"
-        response = self.app.put(f"/task/{self.valid_task['_id']}", json=self.valid_task)
+        response = self.app.put(
+            f"/task/{self.valid_task['_id']}",
+            json=self.valid_task,
+            headers=self.basic_auth,
+        )
         data = response.get_json()
 
         self.assertEqual(response.status_code, 200)
@@ -83,7 +93,9 @@ class RouteTests(unittest.TestCase):
         assert data["status"] == "OPEN"
         assert response.headers.get("content-type") == "application/json"
 
-        response = self.app.get(f"/task/{self.valid_task['_id']}")
+        response = self.app.get(
+            f"/task/{self.valid_task['_id']}", headers=self.basic_auth
+        )
         data = response.get_json()[0]
 
         self.assertEqual(response.status_code, 200)
@@ -95,12 +107,16 @@ class RouteTests(unittest.TestCase):
 
     def complete_task_and_get_result(self):
         """Test step for complete task"""
-        response = self.app.patch(f"/task/{self.valid_task['_id']}/complete")
+        response = self.app.patch(
+            f"/task/{self.valid_task['_id']}/complete", headers=self.basic_auth
+        )
         data = response.get_json()
 
         assert data["status"] == "DONE"
 
-        get_response = self.app.get(f"/task/{self.valid_task['_id']}")
+        get_response = self.app.get(
+            f"/task/{self.valid_task['_id']}", headers=self.basic_auth
+        )
         data = response.get_json()
 
         assert data["_id"] == self.valid_task["_id"]
