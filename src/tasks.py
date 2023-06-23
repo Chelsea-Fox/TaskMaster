@@ -112,6 +112,17 @@ class Tasks:
 
         return [x for x in [self._task_list.get(task_id)] if x is not None]
 
+    def get_due_tasks(self, due_date=None):
+        """
+        Gets a list of tasks that are due to be completed.
+        :param: due_date: Datetime.datetime: Due date for tasks, defaults to today
+        :return: list: tasks matching criteria
+        """
+        if due_date is None:
+            due_date = datetime.now()
+
+        return [x for x in self._task_list.values() if x["eta"] <= due_date]
+
     def delete_task(self, task_id):
         """
         Deletes a task given its task_id
