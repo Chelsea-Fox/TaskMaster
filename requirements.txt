@@ -3,3 +3,4 @@ pytest
 schema
 pytest-cov
 flask
+Flask-BasicAuth
