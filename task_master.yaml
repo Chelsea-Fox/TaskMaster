@@ -1,0 +1,101 @@
+openapi: 3.0.0
+info:
+  title: Task API
+  version: 1.0.0
+paths:
+  /tasks:
+    get:
+      description: Retrieves a list of tasks.
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+  /task:
+    post:
+      description: Creates a new task.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskInput'
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+  /task/{task_id}:
+    get:
+      description: Retrieves a specific task by its ID.
+      parameters:
+        - name: task_id
+          in: path
+          description: ID of the task to retrieve.
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+    delete:
+      description: Deletes a specific task by its ID.
+      parameters:
+        - name: task_id
+          in: path
+          description: ID of the task to delete.
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content.
+  /task/{task_id}/complete:
+    patch:
+      description: Marks a specific task as completed.
+      parameters:
+        - name: task_id
+          in: path
+          description: ID of the task to complete.
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        eta:
+          type: string
+          format: date-time
+        status:
+          type: string
+    TaskInput:
+      type: object
+      properties:
+        title:
+          type: string
+        eta:
+          type: string
+          format: date-time
