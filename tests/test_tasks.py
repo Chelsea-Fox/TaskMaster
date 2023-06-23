@@ -175,6 +175,22 @@ class TestTaskManagement(TestCase):
 
         assert updated_task["status"] == "DONE"
 
+    def test_get_due_tasks(self):
+        """Test to return all due tasks"""
+        past_task = copy.deepcopy(self.valid_task)
+        self.tasks.post_task(self.valid_task)
+        self.tasks.post_task(self.valid_task)
+
+        past_task["eta"] = datetime.now() - timedelta(days=5)
+        self.tasks.post_task(past_task)
+
+        response = self.tasks.get_due_tasks()
+
+        assert len(response) == 1
+
+        response[0].pop("_id")
+        assert past_task == response[0]
+
     @classmethod
     def teardown_class(cls):
         """Teardown for tests"""
